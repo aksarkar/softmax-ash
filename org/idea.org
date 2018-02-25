@@ -18,6 +18,24 @@
 
 * Setup                                                            :noexport:
 
+  #+BEGIN_SRC emacs-lisp :results none
+    (add-to-list
+     'org-publish-project-alist
+     '("softmax-ash-org" . (:base-directory "/home/aksarkar/projects/softmax-ash/org"
+                                            :publishing-directory "/home/aksarkar/projects/softmax-ash/docs"
+                                            :exclude "setup.org"
+                                            :publishing-function org-html-publish-to-html)))
+    (add-to-list
+     'org-publish-project-alist
+     '("softmax-ash-fig" . (:base-directory "/home/aksarkar/projects/softmax-ash/org"
+                                            :publishing-directory "/home/aksarkar/projects/softmax-ash/docs"
+                                            :publishing-function org-publish-attachment
+                                            :base-extension "png")))
+    (add-to-list
+     'org-publish-project-alist
+     '("softmax-ash" . (:components ("softmax-ash-org" "softmax-ash-fig"))))
+  #+END_SRC
+
   #+BEGIN_SRC emacs-lisp
     (org-babel-lob-ingest "/home/aksarkar/.emacs.d/org-templates/library.org")
   #+END_SRC
@@ -86,6 +104,9 @@
 
   Simulate some data, fixing \(\hat{s}_j = 1\) for all \(j\).
 
+  \[ x \mid z = 1 \sim \sum_k \pi_k N(0, \sigma^2_k) \]
+  \[ \hat{x} \sim N(x, 1) \]
+
   #+BEGIN_SRC ipython
     def simulate(n, pi0, logits=None, grid=None):
       assert np.isscalar(pi0)
@@ -97,7 +118,7 @@
       if logits is None:
         logits = np.ones(grid.shape)
       assert logits.shape == grid.shape
-      x = np.random.normal(scale=np.random.choice(grid, p=softmax(logits), size=n))
+      x = np.random.normal(loc=np.random.normal(scale=np.random.choice(grid, p=softmax(logits), size=n)))
       z = np.random.uniform(size=n) > pi0
       return x * z
   #+END_SRC
